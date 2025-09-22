@@ -1,59 +1,86 @@
 version: 2.1
 
 orbs:
-  python: circleci/python@3.1.0
+  python: circleci/python@3.3.0
+
+commands:
+  install-dependencies:
+    description: "Check out and update Python dependencies."
+    steps:
+      - checkout
+      - run:
+          name: Install uv
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
+            source $BASH_ENV
+      {% raw %}
+      - restore_cache:
+          keys:
+            - uv-cache-v1-{{ checksum "uv.lock" }}
+            - uv-cache-v1-
+      - run:
+          name: Install project_template
+          command: |
+            uv sync --extra dev
+            uv cache prune --ci
+      - save_cache:
+          key: uv-cache-v1-{{ checksum "uv.lock" }}
+          paths:
+            - ~/.cache/uv
+      {% endraw %}
+
+  store-test-output:
+    description: "Store the output of tests."
+    steps:
+      - store_artifacts:
+          path: /tmp/test-reports
+          destination: test-reports
+
+      - store_test_results:
+          path: /tmp/test-reports
+
+      - store_artifacts:
+          path: /tmp/resource-usage
+          destination: resource-usage
 
 jobs:
-  lint-cruft:
-    executor:
-      name: python/default
-      tag: "3.12"
+  pytest:
+    docker:
+      - image: cimg/python:{{ cookiecutter.python_version }}
     steps:
-      - checkout
-      - run:
-          name: Check if automatic project update was successful
-          # Fail if .rej files exist as structure update was not successful
-          command: test -z "$(find . -iname '*.rej')"
-
-  pre-commit:
-    executor:
-      name: python/default
-      tag: "3.12"
-    steps:
-      - checkout
-      - python/install-packages:
-          pkg-manager: uv
-      - run:
-          name: Run pre-commit
-          command: uv run pre-commit run --all-files
-  test:
-    executor:
-      name: python/default
-      tag: "3.12"
-    steps:
-      - checkout
-      - python/install-packages:
-          pkg-manager: uv
+      - install-dependencies
       - run:
           name: Run tests
-          command: uv run pytest tests/
+          command: |
+            uv run pytest --junitxml=/tmp/test-reports/junit.xml \
+              --durations=500 -vv project_template/tests/
+          environment:
+            WANDB_MODE: offline
+      - store-test-output
 
-  docs:
-    executor:
-      name: python/default
-      tag: "3.12"
+  lint:
+    docker:
+      - image: cimg/python:{{ cookiecutter.python_version }}
     steps:
-      - checkout
-      - python/install-packages:
-          pkg-manager: uv
+      - install-dependencies
       - run:
-          name: Build docs
-          command: uv run mkdocs build
+          name: ruff format check
+          command: |
+            uv run ruff --version
+            uv run ruff format --check .
+      - run:
+          name: ruff lint
+          command: |
+            uv run ruff check .
+      - run:
+          name: pyright
+          command: |
+            uv run pyright --version
+            uv run pyright .
 
 workflows:
-  test:
+  tests:
     jobs:
-      - lint-cruft
-      - pre-commit
-      - test
-      - docs
+      - pytest
+      - lint

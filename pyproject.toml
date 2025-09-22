@@ -1,15 +1,16 @@
 [project]
-name = "python-lib-template"
+name = "far-project-template"
 version = "0.0.1"
-description = "A template for creating Python libraries at FAR.AI"
+description = "A template for creating new research projects at FAR.AI"
 readme = "README.md"
 authors = [
     {name = "James Collins", email = "james@far.ai"},
+    {name = "Tom Tseng", email = "tom@far.ai"},
 ]
 requires-python = ">=3.12"
 
 [project.urls]
-repository = "https://github.com/AlignmentResearch/python-lib-template"
+repository = "https://github.com/AlignmentResearch/far-project-template"
 
 [tool.uv]
 package = false

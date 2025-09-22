@@ -1,4 +1,4 @@
-# FAR's Python Library Template
+# FAR's Project Template
 
 This is a Python package
 [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/README.html) template
@@ -57,7 +57,7 @@ Make sure you have [`cruft`](https://github.com/cruft/cruft#installation) instal
 Create a new project:
 
 ```sh
-cruft create https://github.com/AlignmentResearch/python-lib-template
+cruft create https://github.com/AlignmentResearch/far-project-template
 ```
 
 The CLI interface will ask some basic questions, such the name of the project, and then

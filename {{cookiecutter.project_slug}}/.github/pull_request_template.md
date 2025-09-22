@@ -1,10 +1,7 @@
-## Description
+## Changes
+Summarize the changes in this PR and explain why they're needed (what's the
+context?).
 
-A short description about the changes in this pull request. If the pull request is related to some issue, mention it
- here.
-
-## Checklist
-
-- [ ] Tests covering the new functionality have been added
-- [ ] Documentation has been updated OR the change is too minor to be documented
-- [ ] Changes are listed in the `CHANGELOG.md` OR changes are insignificant
+## Testing
+Describe how you tested these changes (e.g., added tests, or ran `./foo` and
+verified output).

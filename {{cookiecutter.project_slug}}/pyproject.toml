@@ -1,15 +1,26 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "{{ cookiecutter.project_slug }}"
 version = "0.0.1"
 description = "{{ cookiecutter.project_short_description }}"
-license = "BSD-3-Clause"
+license = "LicenseRef-Proprietary-FAR"
 readme = "README.md"
 authors = [
     {name = "{{ cookiecutter.author_name }}", email = "{{ cookiecutter.author_email }}"},
 ]
-requires-python = ">=3.12"
+requires-python = ">= {{ cookiecutter.python_version }}"
+
 dependencies = [
-    "click",
+    "names_generator",
+    "pandas",
+    "torch",
+    "torchvision",
+    "typeapi==2.1.2",  # needed so that pip does not complain about conflicting reqs
+    "wandb",
+    "farconf@git+https://github.com/AlignmentResearch/farconf.git",
 ]
 
 [project.urls]
@@ -18,16 +29,12 @@ repository = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecut
 {% else -%}
 repository = "https://github.com/{{ cookiecutter.github_organization_name }}/{{ cookiecutter.project_slug }}"
 {% endif %}
-[project.scripts]
-my-cli = "{{ cookiecutter.package_name }}.cli:main"
-
 # We keep the dev dependencies here instead of in the
 # project optional dependencies. This is so that they're still installed
 # by default with `uv sync`, but are not shipped with the package.
 [dependency-groups]
 dev = [
     # Things we want to put a lower bound on
-    "mypy>=1.15.0",
     "mkdocs-material>=9.6.0",
     "pre-commit>=4.0.0",
     "pytest>=8.3.0",
@@ -38,18 +45,22 @@ dev = [
     "mkdocs-gen-files",
     "mkdocs-literate-nav",
     "mkdocs-section-index",
+    "pyright",
     "pymdown-extensions",
-    "pytest-github-actions-annotate-failures",
     "pytest-cov",
-    "python-kacl",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.setuptools.packages.find]
+namespaces = false
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+include = ["{{ cookiecutter.package_name }}"]
+pythonVersion = "{{ cookiecutter.python_version }}"
 
 [tool.ruff]
-target-version = "py312" # The lowest supported version
+target-version = "py{{ cookiecutter.python_version.replace('.', '') }}"
 
 [tool.ruff.lint]
 # By default, enable all the lint rules.
@@ -90,19 +101,3 @@ classmethod-decorators = [
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
-
-[tool.mypy]
-# This is the global mypy configuration.
-# Avoid changing this!
-strict = true  # See all the enabled flags `mypy --help | grep -A 10 'Strict mode'`
-disallow_any_unimported = false
-
-# If you need to ignore something for some specific module,
-# add overrides for them. Avoid changing the global config!
-# For example:
-# [[tool.mypy.overrides]]
-# module = [
-#  "my_unpyted_dependency1.*",
-#  "my_unpyted_dependency2.*"
-# ]
-# ignore_missing_imports = true
