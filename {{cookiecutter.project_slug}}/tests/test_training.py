@@ -1,6 +1,6 @@
 import torch
 
-from project_template.training import NeuralNetwork
+from {{ cookiecutter.project_name }}.training import NeuralNetwork
 
 
 def test_neural_network():
