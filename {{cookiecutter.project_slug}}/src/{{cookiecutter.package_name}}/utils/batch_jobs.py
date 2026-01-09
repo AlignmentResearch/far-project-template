@@ -14,9 +14,9 @@ from names_generator import generate_name
 
 from {{ cookiecutter.project_name }}.configs import RunConfig
 from {{ cookiecutter.project_name }}.constants import PROJECT_SHORT, WANDB_ENTITY, WANDB_PROJECT
-from {{ cookiecutter.project_name }}.utils.git import git_latest_commit, validate_git_repo
+from {{ cookiecutter.project_name }}.utils.git import get_repo_root, git_latest_commit, validate_git_repo
 
-JOB_TEMPLATE_PATH = Path(__file__).parent.parent.parent / "k8s" / "batch_job.yaml"
+JOB_TEMPLATE_PATH = get_repo_root() / "k8s" / "batch_job.yaml"
 with JOB_TEMPLATE_PATH.open() as f:
     JOB_TEMPLATE = f.read()
 
